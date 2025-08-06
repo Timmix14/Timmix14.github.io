@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Benachrichtigungen für Website</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f0f0;
+      margin: 0;
+      padding: 0;
+    }
+    h1 {
+      text-align: center;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Push-Benachrichtigungen aktivieren</h1>
+  <button id="subscribe">Benachrichtigungen aktivieren</button>
+
+  <script>
+    if ('Notification' in window && 'serviceWorker' in navigator) {
+      // Button zum Aktivieren der Benachrichtigungen
+      document.getElementById('subscribe').addEventListener('click', () => {
+        // Berechtigung für Benachrichtigungen anfordern
+        Notification.requestPermission().then(permission => {
+          if (permission === "granted") {
+            alert('Benachrichtigungen aktiviert!');
+            // Service Worker registrieren
+            if ('serviceWorker' in navigator) {
+              navigator.serviceWorker.register('/sw.js').then(function(registration) {
+                console.log('Service Worker registriert:', registration);
+              }).catch(function(error) {
+                console.log('Service Worker Registrierung fehlgeschlagen:', error);
+              });
+            }
+          } else {
+            alert('Benachrichtigungen wurden abgelehnt.');
+          }
+        });
+      });
+    }
+  </script>
+
+</body>
+</html>
