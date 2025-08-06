@@ -1,9 +1,7 @@
 {
-  "name": "To Do Liste und Einkaufsliste",
-  "background_color": "#00ff6b",
-  "short_name": "To Do & Einkaufsliste",
+  "theme_color": "#6e7275",
+  "background_color": "#000000",
   "display": "fullscreen",
-  "orientation": "portrait",
-  "start_url": "index.html",
-  "lang": "Deutsch"
-} "name": "To Do Liste und Einkaufsliste", "Hintergrund_Farbe": "#00ff6b" } "name": "To Do Liste und Einkaufsliste", "Hintergrund_Farbe": "#ffffff" } "name": "To Do Liste und Einkaufsliste" }
+  "scope": "/",
+  "start_url": "/index.html"
+}
