@@ -32,7 +32,7 @@
       text-align: center;
     }
 
-    input[type="text"], input[type="password"] {
+    input[type="text"], input[type="password"], input[type="datetime-local"] {
       width: 100%;
       padding: 12px;
       margin: 10px 0;
@@ -159,6 +159,7 @@
     <div id="todo" class="list-section active">
       <h2>To-Do Liste</h2>
       <input type="text" id="todo-input" class="item-input" placeholder="Neue Aufgabe...">
+      <input type="datetime-local" id="todo-datetime" class="item-input">
       <button class="add" onclick="addItem('todo')">Hinzufügen</button>
       <ul id="todo-list"></ul>
     </div>
@@ -167,6 +168,7 @@
     <div id="shopping" class="list-section">
       <h2>Einkaufsliste</h2>
       <input type="text" id="shopping-input" class="item-input" placeholder="Neues Produkt...">
+      <input type="datetime-local" id="shopping-datetime" class="item-input">
       <button class="add" onclick="addItem('shopping')">Hinzufügen</button>
       <ul id="shopping-list"></ul>
     </div>
@@ -234,15 +236,39 @@
 
     function addItem(type) {
       const input = document.getElementById(`${type}-input`);
+      const datetime = document.getElementById(`${type}-datetime`);
       const value = input.value.trim();
+      const reminderTime = datetime.value.trim();
+
       if (value === "") return;
 
-      const item = { text: value, completed: false };
+      const item = { text: value, completed: false, reminder: reminderTime };
       const list = getList(type);
       list.push(item);
       saveList(type, list);
       renderList(type, list);
+
+      if (reminderTime) {
+        setReminder(reminderTime, value);
+      }
+
       input.value = "";
+      datetime.value = "";
+    }
+
+    function setReminder(reminderTime, taskText) {
+      const reminderDate = new Date(reminderTime);
+      const currentTime = new Date();
+
+      const timeDifference = reminderDate.getTime() - currentTime.getTime();
+
+      if (timeDifference > 0) {
+        setTimeout(() => {
+          alert(`Erinnerung: ${taskText}`);
+        }, timeDifference);
+      } else {
+        alert("Das Erinnerungsdatum ist bereits vergangen!");
+      }
     }
 
     function getList(type) {
@@ -298,6 +324,5 @@
       });
     }
   </script>
-
 </body>
 </html>
