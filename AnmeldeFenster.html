@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Login & Listen mit Speicher</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f0f0;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container, .app-container {
+      display: none;
+      max-width: 400px;
+      margin: 80px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    .container.active,
+    .app-container.active {
+      display: block;
+    }
+
+    h1, h2 {
+      text-align: center;
+    }
+
+    input[type="text"], input[type="password"] {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      box-sizing: border-box;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    .error {
+      color: red;
+      text-align: center;
+    }
+
+    .link {
+      margin-top: 10px;
+      text-align: center;
+      color: blue;
+      cursor: pointer;
+    }
+
+    .switch-buttons {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .switch-buttons button {
+      margin: 0 10px;
+      padding: 10px 20px;
+    }
+
+    .list-section {
+      display: none;
+      max-width: 500px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    .list-section.active {
+      display: block;
+    }
+
+    input[type="text"].item-input {
+      width: 70%;
+      padding: 10px;
+      font-size: 16px;
+    }
+
+    button.add {
+      padding: 10px;
+      font-size: 16px;
+      margin-left: 10px;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin-top: 20px;
+    }
+
+    li {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    li.completed span {
+      text-decoration: line-through;
+      color: gray;
+    }
+
+    .actions button {
+      margin-left: 5px;
+      cursor: pointer;
+    }
+
+    .actions {
+      display: flex;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 🔐 Login -->
+  <div class="container active" id="login-container">
+    <h1>Anmeldung</h1>
+    <input type="text" id="login-username" placeholder="Benutzername">
+    <input type="password" id="login-password" placeholder="Passwort">
+    <div class="error" id="login-error"></div>
+    <button onclick="login()">Einloggen</button>
+    <div class="link" onclick="showRegister()">Noch kein Konto? Jetzt registrieren</div>
+  </div>
+
+  <!-- 📝 Registrierung -->
+  <div class="container" id="register-container">
+    <h1>Registrierung</h1>
+    <input type="text" id="register-username" placeholder="Benutzername">
+    <input type="password" id="register-password" placeholder="Passwort">
+    <div class="error" id="register-error"></div>
+    <button onclick="register()">Registrieren</button>
+    <div class="link" onclick="showLogin()">Zurück zum Login</div>
+  </div>
+
+  <!-- ✅ Haupt-App -->
+  <div class="app-container" id="app">
+    <h1>To-Do & Einkaufsliste</h1>
+    <div class="switch-buttons">
+      <button onclick="switchList('todo')">To-Do Liste</button>
+      <button onclick="switchList('shopping')">Einkaufsliste</button>
+    </div>
+
+    <!-- To-Do Liste -->
+    <div id="todo" class="list-section active">
+      <h2>To-Do Liste</h2>
+      <input type="text" id="todo-input" class="item-input" placeholder="Neue Aufgabe...">
+      <button class="add" onclick="addItem('todo')">Hinzufügen</button>
+      <ul id="todo-list"></ul>
+    </div>
+
+    <!-- Einkaufsliste -->
+    <div id="shopping" class="list-section">
+      <h2>Einkaufsliste</h2>
+      <input type="text" id="shopping-input" class="item-input" placeholder="Neues Produkt...">
+      <button class="add" onclick="addItem('shopping')">Hinzufügen</button>
+      <ul id="shopping-list"></ul>
+    </div>
+  </div>
+
+  <script>
+    let currentUser = "";
+
+    function showRegister() {
+      document.getElementById("login-container").classList.remove("active");
+      document.getElementById("register-container").classList.add("active");
+    }
+
+    function showLogin() {
+      document.getElementById("register-container").classList.remove("active");
+      document.getElementById("login-container").classList.add("active");
+    }
+
+    function register() {
+      const user = document.getElementById("register-username").value.trim();
+      const pass = document.getElementById("register-password").value.trim();
+      const error = document.getElementById("register-error");
+
+      if (!user || !pass) {
+        error.textContent = "Bitte alle Felder ausfüllen!";
+        return;
+      }
+
+      if (localStorage.getItem("user_" + user)) {
+        error.textContent = "Benutzername existiert bereits!";
+        return;
+      }
+
+      localStorage.setItem("user_" + user, pass);
+      alert("Registrierung erfolgreich! Jetzt anmelden.");
+      showLogin();
+    }
+
+    function login() {
+      const user = document.getElementById("login-username").value.trim();
+      const pass = document.getElementById("login-password").value.trim();
+      const error = document.getElementById("login-error");
+
+      const storedPass = localStorage.getItem("user_" + user);
+
+      if (!storedPass || storedPass !== pass) {
+        error.textContent = "Benutzername oder Passwort falsch!";
+        return;
+      }
+
+      currentUser = user;
+      document.getElementById("login-container").classList.remove("active");
+      document.getElementById("app").classList.add("active");
+
+      loadList("todo");
+      loadList("shopping");
+    }
+
+    function switchList(type) {
+      document.querySelectorAll('.list-section').forEach(section => {
+        section.classList.remove('active');
+      });
+      document.getElementById(type).classList.add('active');
+    }
+
+    function addItem(type) {
+      const input = document.getElementById(`${type}-input`);
+      const value = input.value.trim();
+      if (value === "") return;
+
+      const item = { text: value, completed: false };
+      const list = getList(type);
+      list.push(item);
+      saveList(type, list);
+      renderList(type, list);
+      input.value = "";
+    }
+
+    function getList(type) {
+      const data = localStorage.getItem(`user_${currentUser}_${type}`);
+      return data ? JSON.parse(data) : [];
+    }
+
+    function saveList(type, list) {
+      localStorage.setItem(`user_${currentUser}_${type}`, JSON.stringify(list));
+    }
+
+    function loadList(type) {
+      const list = getList(type);
+      renderList(type, list);
+    }
+
+    function renderList(type, items) {
+      const ul = document.getElementById(`${type}-list`);
+      ul.innerHTML = "";
+
+      items.forEach((item, index) => {
+        const li = document.createElement("li");
+        if (item.completed) li.classList.add("completed");
+
+        const span = document.createElement("span");
+        span.textContent = item.text;
+
+        const actions = document.createElement("div");
+        actions.classList.add("actions");
+
+        const checkBtn = document.createElement("button");
+        checkBtn.textContent = "✓";
+        checkBtn.onclick = () => {
+          items[index].completed = !items[index].completed;
+          saveList(type, items);
+          renderList(type, items);
+        };
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.textContent = "🗑️";
+        deleteBtn.onclick = () => {
+          items.splice(index, 1);
+          saveList(type, items);
+          renderList(type, items);
+        };
+
+        actions.appendChild(checkBtn);
+        actions.appendChild(deleteBtn);
+
+        li.appendChild(span);
+        li.appendChild(actions);
+        ul.appendChild(li);
+      });
+    }
+  </script>
+
+</body>
+</html>
